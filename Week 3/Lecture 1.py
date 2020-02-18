@@ -1,7 +1,7 @@
 #Finding the largest integer or something
-n1 = input('Input the first number')
-n2 = input('Input the second number')
-n3 = input('Input the third number')
+n1 = input('Input the first number: ')
+n2 = input('Input the second number: ')
+n3 = input('Input the third number: ')
 
 # check if n1 is largest
 if n1 >= n2 and n1 >= n3:
