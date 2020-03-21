@@ -1,5 +1,3 @@
-# Define input
-
 # Initialize Global Variables
 rows = None
 columns = None
@@ -52,22 +50,23 @@ startGame()
 # Initializes the array with blank values
 arr = [[0 for i in range(columns)] for j in range(rows)]
 
-# Refreshes the play area and updates the values shown on screen
+# Function to refresh the play area, updates the values shown on screen
 def refresh():
     for row in arr:
         print('    '.join(map(str, row))) # Only str objects can be joined,
         print()                           # so output is mapped to string
 
 # Sets default board values
-arr[0][0] = 1
-arr[0][1] = 2
-arr[0][2] = 3
-arr[1][0] = 4
-arr[1][1] = 5
-arr[1][2] = 6
-arr[2][0] = 7
-arr[2][1] = 8
-arr[2][2] = 0
+def setDefault():
+    arr[0][0] = 1
+    arr[0][1] = 2
+    arr[0][2] = 3
+    arr[1][0] = 4
+    arr[1][1] = 5
+    arr[1][2] = 6
+    arr[2][0] = 7
+    arr[2][1] = 8
+    arr[2][2] = 0
 
 # Scrolls through the array and finds the coordinate of the value in the 2D array
 def locateCoord(val):
@@ -77,7 +76,7 @@ def locateCoord(val):
             if val == column]
     return coord
 
-# Executes the move (swap) function as well as check if it is a legal move
+# Executes the move (swap) function as well as checks if it is a legal move
 def swapFunction(y, x,  direction):
     swap = arr[y][x]
     if direction == up:
@@ -124,9 +123,8 @@ def swapFunction(y, x,  direction):
         print()
         print('Error. You did not enter a valid direction.')
 
-# Player selects a block or tile to move
+# Function for accepting player input
 def playerInput():
-    global numMove
     tileCorrect = False
     while not tileCorrect:
         print('Select a tile to move')
@@ -141,9 +139,8 @@ def playerInput():
             print('Error. You can not move the blank space.')
     print('Select a direction to move')
     swapFunction(tileCoord[0], tileCoord[1], input('Direction: '))
-    
 
-# Refreshes screen after player input
+# Executes game logic while game is still running
 while not gameOver:
     print('////////////')
     print()
