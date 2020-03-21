@@ -48,8 +48,8 @@ def initialize(gameMode):
         print('Error. Invalid. Please Try Again.')
 
 # Sets default board values
-def setDefault(mode):
-    if mode == 1:    
+def setDefault(gameMode):
+    if gameMode == 1:    
         arr[0][0] = 1
         arr[0][1] = 2
         arr[0][2] = 3
@@ -59,7 +59,7 @@ def setDefault(mode):
         arr[2][0] = 7
         arr[2][1] = 8
         arr[2][2] = 0
-    elif mode == 2:
+    elif gameMode == 2:
         arr[0][0] = 1
         arr[0][1] = 2
         arr[0][2] = 3
