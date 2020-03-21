@@ -10,6 +10,7 @@ up = None
 down = None
 left = None
 right = None
+mode = None
 
 # Defines user input
 def inputMode():
@@ -77,6 +78,7 @@ def setDefault(mode):
         arr[3][3] = 0
 # Function to select gamemode and initialize play area
 def startGame():
+    global mode
     print("Select a game mode")
     print("1. 3x3 Map (8 Tiles)")
     print("2. 4x4 Map (15 Tiles)")
@@ -91,8 +93,11 @@ def startGame():
 # Function to refresh the play area, updates the values shown on screen
 def refresh():
     for row in arr:
-        print('{:>4} {:>4} {:>34}'.format(*row))
-        print()
+        if mode == 1:
+            print('{:>4} {:>4} {:>4}'.format(*row))
+        elif mode == 2:
+            print('{:>4} {:>4} {:>4} {:>4}'.format(*row))
+            print()
 
 # Scrolls through the array and finds the coordinate of the value in the 2D array
 def locateCoord(val):
