@@ -91,8 +91,8 @@ def startGame():
 # Function to refresh the play area, updates the values shown on screen
 def refresh():
     for row in arr:
-        print('    '.join(map(str, row))) # Only str objects can be joined,
-        print()                           # so output is mapped to string
+        print('{:>4} {:>4} {:>34}'.format(*row))
+        print()
 
 # Scrolls through the array and finds the coordinate of the value in the 2D array
 def locateCoord(val):
