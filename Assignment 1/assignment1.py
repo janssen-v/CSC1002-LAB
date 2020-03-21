@@ -1,4 +1,5 @@
 # Initialize Global Variables
+arr = None
 rows = None
 columns = None
 gameOver = False
@@ -20,53 +21,78 @@ def inputMode():
     down = input('Choose key for downwards direction: ')
     left = input('Choose key for leftwards direction: ')
     right = input('Choose key for righwards direction: ')
-# Defines the game mode
+
+# Initialize the board according to the game mode
 def initialize(gameMode):
     global rows
     global columns
     global legalMoves
     global winCondition
+    global arr
     inputMode()
-    if gameMode == 1:
-        rows, columns = (3, 3)
-        legalMoves = [1, 2, 3, 4, 5, 6, 7, 8]
-        winCondition = 123456780
-    elif gameMode == 2:
-        rows, columns = (4, 4)
-        legalMoves = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0]
-        winCondition = 12345678910111213140   
-    else:
-        print('Invalid game mode. Exiting Game.')
+    try:
+        if gameMode == 1:
+            rows, columns = (3, 3)
+            legalMoves = [1, 2, 3, 4, 5, 6, 7, 8]
+            winCondition = 123456780
+        elif gameMode == 2:
+            rows, columns = (4, 4)
+            legalMoves = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0]
+            winCondition = 12345678910111213140   
+        else:
+            print('Invalid game mode. Exiting Game.')
+        # Initializes the array with blank values
+        arr = [[0 for i in range(columns)] for j in range(rows)]
+    except:
+        print('Error. Invalid. Please Try Again.')
 
-# Starts the game
+# Sets default board values
+def setDefault(mode):
+    if mode == 1:    
+        arr[0][0] = 1
+        arr[0][1] = 2
+        arr[0][2] = 3
+        arr[1][0] = 4
+        arr[1][1] = 5
+        arr[1][2] = 6
+        arr[2][0] = 7
+        arr[2][1] = 8
+        arr[2][2] = 0
+    elif mode == 2:
+        arr[0][0] = 1
+        arr[0][1] = 2
+        arr[0][2] = 3
+        arr[0][3] = 4
+        arr[1][0] = 5
+        arr[1][1] = 6
+        arr[1][2] = 7
+        arr[1][3] = 8
+        arr[2][0] = 9
+        arr[2][1] = 10
+        arr[2][2] = 11
+        arr[2][3] = 12
+        arr[3][0] = 13
+        arr[3][1] = 14
+        arr[3][2] = 15
+        arr[3][3] = 0
+# Function to select gamemode and initialize play area
 def startGame():
     print("Select a game mode")
     print("1. 3x3 Map (8 Tiles)")
     print("2. 4x4 Map (15 Tiles)")
-    initialize(int(input('Selected mode: ')))
-
-startGame()
-
-# Initializes the array with blank values
-arr = [[0 for i in range(columns)] for j in range(rows)]
+    mode = input('Selected mode: ')
+    try:
+        mode = int(mode)
+        initialize(mode)
+    except:
+        print('Invalid game mode. Exiting Game.')
+    setDefault(mode)
 
 # Function to refresh the play area, updates the values shown on screen
 def refresh():
     for row in arr:
         print('    '.join(map(str, row))) # Only str objects can be joined,
         print()                           # so output is mapped to string
-
-# Sets default board values
-def setDefault():
-    arr[0][0] = 1
-    arr[0][1] = 2
-    arr[0][2] = 3
-    arr[1][0] = 4
-    arr[1][1] = 5
-    arr[1][2] = 6
-    arr[2][0] = 7
-    arr[2][1] = 8
-    arr[2][2] = 0
 
 # Scrolls through the array and finds the coordinate of the value in the 2D array
 def locateCoord(val):
@@ -139,6 +165,8 @@ def playerInput():
             print('Error. You can not move the blank space.')
     print('Select a direction to move')
     swapFunction(tileCoord[0], tileCoord[1], input('Direction: '))
+
+startGame()
 
 # Executes game logic while game is still running
 while not gameOver:
