@@ -11,7 +11,7 @@ left = None
 right = None
 
 # Assigns user input
-def inputMode():
+def assignInput():
     # At first I did not want to put this in a function because it could've been
     # defined and assigned within the startgame or initialize function. However,
     # because the variables would be referenced in swapFunction and would need
@@ -21,10 +21,10 @@ def inputMode():
     global down
     global left
     global right
-    up = input('Choose key for upwards direction: ')
-    down = input('Choose key for downwards direction: ')
-    left = input('Choose key for leftwards direction: ')
-    right = input('Choose key for righwards direction: ')
+    up = input('Keybind for upwards direction: ')
+    down = input('Keybind for downwards direction: ')
+    left = input('Keybind for leftwards direction: ')
+    right = input('Keybind for rightwards direction: ')
 
 # Initialize the board according to the game mode
 def initialize(gameMode):
@@ -32,7 +32,6 @@ def initialize(gameMode):
     global columns
     global winCondition
     global arr
-    inputMode()
     try:
         if gameMode == 1:
             rows, columns = (3, 3)
@@ -186,7 +185,6 @@ def mainLogic(gameMode):
     for row in arr:
         valueCheck.append(''.join(map(str, row))) # Only str objects can be joined,
     valueCheck = (''.join(map(str,valueCheck)))
-
     if valueCheck == winCondition:
         gameOver = True
     else:
@@ -209,31 +207,34 @@ def finishGame():
         print('Fatal error. Exiting the game.')
         raise SystemExit
 
+# Randomizes the puzzle in a way that keeps it solvable
 def randomize():
     from random import randrange  
     times = 100 # Amount of times the randomizer will run
     while times > 0:
         reverseValid = False
-        blank_tileCoord = locateCoord('_')
-        blank_tileCoord = blank_tileCoord[0]
+        blank_tileCoord = locateCoord('_')      # Finds position of the blank value (empty space)
+        blank_tileCoord = blank_tileCoord[0]    # Remove coordinate tuple from the list
+        y = blank_tileCoord[0]                  # Set coordinates in terms of x and y to improve readability
+        x = blank_tileCoord[1]
         while not reverseValid:
             dirSeed = randrange (4) # Randomly selects a direction for block to move
             try:
                 if dirSeed == 0:
                     # reverseDirection is up
-                    swapFunction(blank_tileCoord[0]-1, blank_tileCoord[1], down)
+                    swapFunction(y-1, x, down)
                     reverseDir = up
                 elif dirSeed == 1:
                     # reverseDirection is down
-                    swapFunction(blank_tileCoord[0]+1, blank_tileCoord[1], up)
+                    swapFunction(y+1, x, up)
                     reverseDir = down
                 elif dirSeed == 2:
                     # reverseDirection is left
-                    swapFunction(blank_tileCoord[0], blank_tileCoord[1]-1, right)
+                    swapFunction(y, x-1, right)
                     reverseDir = left
                 elif dirSeed == 3:
                     # reverseDirection is right
-                    swapFunction(blank_tileCoord[0], blank_tileCoord[1]+1, left)
+                    swapFunction(y, x+1, left)
                     reverseDir = right
                 times -= 1
                 reverseValid = True
@@ -247,10 +248,22 @@ def startGame():
     gameOver = False
     modeInputDone = False
     modeInputOk = [1, 2]
+    print("Welcome to the n-puzzle game")
+    print()
+    print("The objective of this game is to arrange a scrambled puzzle board from 1 to n.")
+    print("A finished puzzle should look like this:")
+    print()
+    initialize(1)
+    setDefault(1)
+    refresh(1)
+    print()
+    print("Please bind keys for input. ")
+    assignInput()
     print()
     print("Select a game mode")
     print("1. 3x3 Map (8 Tiles)")
     print("2. 4x4 Map (15 Tiles)")
+    print()
     while not modeInputDone:
         gameMode = input('Selected mode: ')
         try:
