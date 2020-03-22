@@ -1,4 +1,4 @@
-# Initialize Variables & Libraries
+# Initialize Global Variables
 arr = None
 rows = None
 columns = None
