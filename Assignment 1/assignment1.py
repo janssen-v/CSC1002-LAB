@@ -256,6 +256,7 @@ def startGame():
     print("Welcome to the n-puzzle game")
     print()
     print("The objective of this game is to arrange a scrambled puzzle board from 1 to n.")
+    print("Each number is a tile, and you can only slide tiles into the blank space _")
     print("A finished puzzle should look like this:")
     print()
     initialize(1)
