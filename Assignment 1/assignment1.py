@@ -149,7 +149,6 @@ def swapFunction(y, x,  direction):
 
 # Function for accepting player input
 def playerInput():
-    global numMove
     tileCorrect = False
     directionCorrect = False
     while not tileCorrect:
