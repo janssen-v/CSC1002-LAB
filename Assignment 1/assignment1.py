@@ -54,8 +54,6 @@ def setDefault(gameMode):
     # if the player decides to play the game again after winning,
     # I defined it as a function so that it could be called along with
     # the startGame function
-    array8 = []
-    array15 = []
     if gameMode == 1:    
         arr[0][0] = 1
         arr[0][1] = 2
@@ -211,15 +209,41 @@ def finishGame():
         print('Fatal error. Exiting the game.')
         raise SystemExit
 
-def randomize(gameMode):
+def randomize():
     from random import randrange  
-    times = randrange(10)
-    x = gameMode
-    seed = random.seed
+    times = 100 # Amount of times the randomizer will run
+    while times > 0:
+        reverseValid = False
+        blank_tileCoord = locateCoord('_')
+        blank_tileCoord = blank_tileCoord[0]
+        while not reverseValid:
+            dirSeed = randrange (4) # Randomly selects a direction for block to move
+            try:
+                if dirSeed == 0:
+                    # reverseDirection is up
+                    swapFunction(blank_tileCoord[0]-1, blank_tileCoord[1], down)
+                    reverseDir = up
+                elif dirSeed == 1:
+                    # reverseDirection is down
+                    swapFunction(blank_tileCoord[0]+1, blank_tileCoord[1], up)
+                    reverseDir = down
+                elif dirSeed == 2:
+                    # reverseDirection is left
+                    swapFunction(blank_tileCoord[0], blank_tileCoord[1]-1, right)
+                    reverseDir = left
+                elif dirSeed == 3:
+                    # reverseDirection is right
+                    swapFunction(blank_tileCoord[0], blank_tileCoord[1]+1, left)
+                    reverseDir = right
+                times -= 1
+                reverseValid = True
+            except:
+                continue
 
 # Function to select gamemode and initialize play area
 def startGame():
     global gameOver
+    global numMove
     gameOver = False
     modeInputDone = False
     modeInputOk = [1, 2]
@@ -235,6 +259,7 @@ def startGame():
                 initialize(gameMode)
                 setDefault(gameMode)
                 modeInputDone = True
+                randomize()
             else:
                 print('You can only choose between 1 and 2. Please try again.')
         except:
