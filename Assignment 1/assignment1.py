@@ -153,7 +153,7 @@ def playerInput():
     directionCorrect = False
     while not tileCorrect:
         print('Select a tile to move.')
-        print('up -', up, 'down -', down, 'left-', left, 'right', right)
+        print('up -', up, 'down -', down, 'left -', left, 'right -', right)
         try:
             tileSelect = int(input('Move: '))
             # if tileSelect != 0: -> at first I used this because I used an int to represent
