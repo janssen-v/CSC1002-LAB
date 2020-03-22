@@ -2,18 +2,20 @@
 arr = None
 rows = None
 columns = None
-gameOver = False
-legalMoves = None
 winCondition = None
 numMove = 0
 up = None
 down = None
 left = None
 right = None
-mode = None
 
-# Defines user input
+# Assigns user input
 def inputMode():
+    # At first I did not want to put this in a function because it could've been
+    # defined and assigned within the startgame or initialize function. However,
+    # because the variables would be referenced in swapFunction and would need
+    # to have been declared global anyways (for simplicity), I decided to place it
+    # it a separate function to improve readability.
     global up
     global down
     global left
@@ -27,19 +29,16 @@ def inputMode():
 def initialize(gameMode):
     global rows
     global columns
-    global legalMoves
     global winCondition
     global arr
     inputMode()
     try:
         if gameMode == 1:
             rows, columns = (3, 3)
-            legalMoves = [1, 2, 3, 4, 5, 6, 7, 8]
-            winCondition = 123456780
+            winCondition = '12345678_'
         elif gameMode == 2:
             rows, columns = (4, 4)
-            legalMoves = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 0]
-            winCondition = 12345678910111213140   
+            winCondition = '123456789101112131415_'   
         else:
             print('Invalid game mode. Exiting Game.')
         # Initializes the array with blank values
@@ -49,6 +48,11 @@ def initialize(gameMode):
 
 # Sets default board values
 def setDefault(gameMode):
+    # At first I did not actually want to use a function for this,
+    # but because I needed a way to reliably reset the game board
+    # if the player decides to play the game again after winning,
+    # I defined it as a function so that it could be called along with
+    # the startGame function
     if gameMode == 1:    
         arr[0][0] = 1
         arr[0][1] = 2
@@ -58,7 +62,7 @@ def setDefault(gameMode):
         arr[1][2] = 6
         arr[2][0] = 7
         arr[2][1] = 8
-        arr[2][2] = 0
+        arr[2][2] = '_'
     elif gameMode == 2:
         arr[0][0] = 1
         arr[0][1] = 2
@@ -75,28 +79,16 @@ def setDefault(gameMode):
         arr[3][0] = 13
         arr[3][1] = 14
         arr[3][2] = 15
-        arr[3][3] = 0
-# Function to select gamemode and initialize play area
-def startGame():
-    global mode
-    print("Select a game mode")
-    print("1. 3x3 Map (8 Tiles)")
-    print("2. 4x4 Map (15 Tiles)")
-    mode = input('Selected mode: ')
-    try:
-        mode = int(mode)
-        initialize(mode)
-    except:
-        print('Invalid game mode. Exiting Game.')
-    setDefault(mode)
+        arr[3][3] = '_'
 
 # Function to refresh the play area, updates the values shown on screen
-def refresh():
-    for row in arr:
-        if mode == 1:
-            print('{:>4} {:>4} {:>4}'.format(*row))
-        elif mode == 2:
-            print('{:>4} {:>4} {:>4} {:>4}'.format(*row))
+def refresh(gameMode):
+    for rows in arr:
+        if gameMode == 1:
+            print('{:>4} {:>4} {:>4}'.format(*rows))
+            print()
+        elif gameMode == 2:
+            print('{:>4} {:>4} {:>4} {:>4}'.format(*rows))
             print()
 
 # Scrolls through the array and finds the coordinate of the value in the 2D array
@@ -110,42 +102,43 @@ def locateCoord(val):
 # Executes the move (swap) function as well as checks if it is a legal move
 def swapFunction(y, x,  direction):
     swap = arr[y][x]
+    global numMove
     if direction == up:
         swapback = arr[y-1][x]
-        if swapback == 0:
+        if swapback == '_':
             arr[y-1][x] = swap
             arr[y][x] = swapback
-            numMove =+ 1
+            numMove += 1
             return
         else:
             print()
             print('Illegal. You can not move there.')
     elif direction == down:
         swapback = arr[y+1][x]
-        if swapback == 0:
+        if swapback == '_':
             arr[y+1][x] = swap
             arr[y][x] = swapback
-            numMove =+ 1
+            numMove += 1
             return
         else:
             print()
             print('Illegal. You can not move there.')
     elif direction == left:
         swapback = arr[y][x-1]
-        if swapback == 0:
+        if swapback == '_':
             arr[y][x-1] = swap
             arr[y][x] = swapback
-            numMove =+ 1
+            numMove += 1
             return
         else:
             print()
             print('Illegal. You can not move there.')
     elif direction == right:
         swapback = arr[y][x+1]
-        if swapback == 0:
+        if swapback == '_':
             arr[y][x+1] = swap
             arr[y][x] = swapback
-            numMove =+ 1
+            numMove += 1
             return
         else:
             print()
@@ -159,31 +152,64 @@ def playerInput():
     tileCorrect = False
     while not tileCorrect:
         print('Select a tile to move')
-        tileSelect = int(input('Move: '))
-        if tileSelect != 0:
+        try:
+            tileSelect = int(input('Move: '))
+            # if tileSelect != 0: -> at first I used this because I used an int to represent
+            # the blank space, now that the blank space is represented by a str, the try loop
+            # will catch an attempted input of the blank space as well, simplifying the code 
             tileCoord = (locateCoord(tileSelect))
             tileCoord = tileCoord[0] # Bring the tuple out of the list
             if locateCoord(tileSelect):
                 tileCorrect = True
-            else: print('Invalid selection.')
-        else:
-            print('Error. You can not move the blank space.')
+        except:
+            print('Error. Please input a number contained within the play area.')
+
     print('Select a direction to move')
     swapFunction(tileCoord[0], tileCoord[1], input('Direction: '))
 
-startGame()
-
-# Executes game logic while game is still running
-while not gameOver:
-    print('////////////')
+# Game execution logic
+def mainLogic(gameMode):
     print()
-    refresh()
-    print('////////////')
+    refresh(gameMode)
     print('You have moved', numMove, 'times')
     print()
     playerInput()
-else:
+
+# Game over logic
+def gameOver():
     print('Congratulations, you have finished the game in', numMove, 'moves.')
     repeat = input('Would you like to play again? Y/N: ')
-    if repeat == 'yes':
+    if repeat == 'Y':
         startGame()
+    elif repeat == 'y':
+        startGame()
+    elif repeat == 'N':
+        raise SystemExit
+    elif repeat == 'n':
+        raise SystemExit
+    else:
+        print('Fatal input error. Exiting the game.')
+        raise SystemExit
+
+# Function to select gamemode and initialize play area
+def startGame():
+    gameOver = False
+    modeInputOk = False
+    print("Select a game mode")
+    print("1. 3x3 Map (8 Tiles)")
+    print("2. 4x4 Map (15 Tiles)")
+    gameMode = input('Selected mode: ')
+    while not modeInputOk:
+        try:
+            gameMode = int(gameMode)
+            initialize(gameMode)
+            setDefault(gameMode)
+        except:
+            print('Invalid game mode. Please try again.')
+        modeInputOk = True
+    while not gameOver:
+        mainLogic(gameMode)
+    else:
+        gameOver()
+
+startGame()
