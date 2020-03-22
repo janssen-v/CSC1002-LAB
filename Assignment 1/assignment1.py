@@ -1,8 +1,9 @@
-# Initialize Global Variables
+# Initialize Variables & Libraries
 arr = None
 rows = None
 columns = None
 winCondition = None
+gameOver = False
 numMove = 0
 up = None
 down = None
@@ -53,6 +54,8 @@ def setDefault(gameMode):
     # if the player decides to play the game again after winning,
     # I defined it as a function so that it could be called along with
     # the startGame function
+    array8 = []
+    array15 = []
     if gameMode == 1:    
         arr[0][0] = 1
         arr[0][1] = 2
@@ -101,8 +104,8 @@ def locateCoord(val):
 
 # Executes the move (swap) function as well as checks if it is a legal move
 def swapFunction(y, x,  direction):
-    swap = arr[y][x]
     global numMove
+    swap = arr[y][x]
     if direction == up:
         swapback = arr[y-1][x]
         if swapback == '_':
@@ -142,14 +145,16 @@ def swapFunction(y, x,  direction):
             return
         else:
             print()
-            print('You can not move there')
+            print('Illegal. You can not move there')
     else:
         print()
-        print('Error. You did not enter a valid direction.')
+        print('Error. You did not enter a key bound to a direction.')
 
 # Function for accepting player input
 def playerInput():
+    global numMove
     tileCorrect = False
+    directionCorrect = False
     while not tileCorrect:
         print('Select a tile to move')
         try:
@@ -163,20 +168,35 @@ def playerInput():
                 tileCorrect = True
         except:
             print('Error. Please input a number contained within the play area.')
-
-    print('Select a direction to move')
-    swapFunction(tileCoord[0], tileCoord[1], input('Direction: '))
+    while not directionCorrect:
+        print('Select a direction to move')
+        try:
+            swapFunction(tileCoord[0], tileCoord[1], input('Direction: '))
+            directionCorrect = True
+        except:
+            print()
+            print('Error. Move out of bounds.')
 
 # Game execution logic
 def mainLogic(gameMode):
+    global gameOver
+    valueCheck = []
     print()
     refresh(gameMode)
     print('You have moved', numMove, 'times')
     print()
-    playerInput()
+    for row in arr:
+        valueCheck.append(''.join(map(str, row))) # Only str objects can be joined,
+    valueCheck = (''.join(map(str,valueCheck)))
 
+    if valueCheck == winCondition:
+        gameOver = True
+    else:
+        playerInput()
+    print()
+    
 # Game over logic
-def gameOver():
+def finishGame():
     print('Congratulations, you have finished the game in', numMove, 'moves.')
     repeat = input('Would you like to play again? Y/N: ')
     if repeat == 'Y':
@@ -188,28 +208,42 @@ def gameOver():
     elif repeat == 'n':
         raise SystemExit
     else:
-        print('Fatal input error. Exiting the game.')
+        print('Fatal error. Exiting the game.')
         raise SystemExit
+
+def randomize(gameMode):
+    from random import randrange  
+    times = randrange(10)
+    x = gameMode
+    seed = random.seed
 
 # Function to select gamemode and initialize play area
 def startGame():
+    global gameOver
     gameOver = False
-    modeInputOk = False
+    modeInputDone = False
+    modeInputOk = [1, 2]
+    print()
     print("Select a game mode")
     print("1. 3x3 Map (8 Tiles)")
     print("2. 4x4 Map (15 Tiles)")
-    gameMode = input('Selected mode: ')
-    while not modeInputOk:
+    while not modeInputDone:
+        gameMode = input('Selected mode: ')
         try:
             gameMode = int(gameMode)
-            initialize(gameMode)
-            setDefault(gameMode)
+            if gameMode in modeInputOk:
+                initialize(gameMode)
+                setDefault(gameMode)
+                modeInputDone = True
+            else:
+                print('You can only choose between 1 and 2. Please try again.')
         except:
-            print('Invalid game mode. Please try again.')
-        modeInputOk = True
+            print('Only accepts numbers as input. Please try again.')
+    numMove = 0 # Resets number of moves after randomizer moves
     while not gameOver:
         mainLogic(gameMode)
     else:
-        gameOver()
+        finishGame()
 
+# Starts the first game
 startGame()
