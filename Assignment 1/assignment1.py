@@ -35,10 +35,10 @@ def initialize(gameMode):
     try:
         if gameMode == 1:
             rows, columns = (3, 3)
-            winCondition = '12345678_'
+            winCondition = '12345678 '
         elif gameMode == 2:
             rows, columns = (4, 4)
-            winCondition = '123456789101112131415_'   
+            winCondition = '123456789101112131415 '   
         else:
             print('Invalid game mode. Exiting Game.')
         # Initializes the array with blank values
@@ -62,7 +62,7 @@ def setDefault(gameMode):
         arr[1][2] = 6
         arr[2][0] = 7
         arr[2][1] = 8
-        arr[2][2] = '_'
+        arr[2][2] = ' '
     elif gameMode == 2:
         arr[0][0] = 1
         arr[0][1] = 2
@@ -79,7 +79,7 @@ def setDefault(gameMode):
         arr[3][0] = 13
         arr[3][1] = 14
         arr[3][2] = 15
-        arr[3][3] = '_'
+        arr[3][3] = ' '
 
 # Function to refresh the play area, updates the values shown on screen
 def refresh(gameMode):
@@ -105,7 +105,7 @@ def swapFunction(y, x,  direction):
     swap = arr[y][x]
     if direction == up:
         swapback = arr[y-1][x]
-        if swapback == '_':
+        if swapback == ' ':
             arr[y-1][x] = swap
             arr[y][x] = swapback
             numMove += 1
@@ -115,7 +115,7 @@ def swapFunction(y, x,  direction):
             print('Illegal. You can not move there.')
     elif direction == down:
         swapback = arr[y+1][x]
-        if swapback == '_':
+        if swapback == ' ':
             arr[y+1][x] = swap
             arr[y][x] = swapback
             numMove += 1
@@ -125,7 +125,7 @@ def swapFunction(y, x,  direction):
             print('Illegal. You can not move there.')
     elif direction == left:
         swapback = arr[y][x-1]
-        if swapback == '_':
+        if swapback == ' ':
             arr[y][x-1] = swap
             arr[y][x] = swapback
             numMove += 1
@@ -135,14 +135,14 @@ def swapFunction(y, x,  direction):
             print('Illegal. You can not move there.')
     elif direction == right:
         swapback = arr[y][x+1]
-        if swapback == '_':
+        if swapback == ' ':
             arr[y][x+1] = swap
             arr[y][x] = swapback
             numMove += 1
             return
         else:
             print()
-            print('Illegal. You can not move there')
+            print('Illegal. You can not move there.')
     else:
         print()
         print('Error. You did not enter a key bound to a direction.')
@@ -152,7 +152,8 @@ def playerInput():
     tileCorrect = False
     directionCorrect = False
     while not tileCorrect:
-        print('Select a tile to move')
+        print('Select a tile to move.')
+        print('up -', up, 'down -', down, 'left-', left, 'right', right)
         try:
             tileSelect = int(input('Move: '))
             # if tileSelect != 0: -> at first I used this because I used an int to represent
@@ -165,7 +166,7 @@ def playerInput():
         except:
             print('Error. Please input a number contained within the play area.')
     while not directionCorrect:
-        print('Select a direction to move')
+        print('Select a direction to move.')
         try:
             swapFunction(tileCoord[0], tileCoord[1], input('Direction: '))
             directionCorrect = True
@@ -193,6 +194,7 @@ def mainLogic(gameMode):
 # Game over logic
 def finishGame():
     responded = False
+    print('GAME COMPLETE')
     print('Congratulations, you have finished the game in', numMove, 'moves.')
     while not responded:
         repeat = input('Would you like to play again? Y/N: ')
@@ -217,7 +219,7 @@ def randomize():
     times = 100 # Amount of times the randomizer will run
     while times > 0:
         reverseValid = False
-        blank_tileCoord = locateCoord('_')      # Finds position of the blank value (empty space)
+        blank_tileCoord = locateCoord(' ')      # Finds position of the blank value (empty space)
         blank_tileCoord = blank_tileCoord[0]    # Remove coordinate tuple from the list
         y = blank_tileCoord[0]                  # Set coordinates in terms of x and y to improve readability
         x = blank_tileCoord[1]
@@ -252,10 +254,11 @@ def startGame():
     gameOver = False
     modeInputDone = False
     modeInputOk = [1, 2]
-    print("Welcome to the n-puzzle game")
+    print("Welcome to the n-puzzle game.")
     print()
     print("The objective of this game is to arrange a scrambled puzzle board from 1 to n.")
-    print("Each number is a tile, and you can only slide tiles into the blank space _")
+    print("Each number is a tile, and you can only slide tiles into the blank space.")
+    print()
     print("A finished puzzle should look like this:")
     print()
     initialize(1)
@@ -265,7 +268,7 @@ def startGame():
     print("Please bind keys for input. ")
     assignInput()
     print()
-    print("Select a game mode")
+    print("Select a game mode:")
     print("1. 3x3 Map (8 Puzzle)")
     print("2. 4x4 Map (15 Puzzle)")
     print()
