@@ -266,8 +266,8 @@ def startGame():
     assignInput()
     print()
     print("Select a game mode")
-    print("1. 3x3 Map (8 Tiles)")
-    print("2. 4x4 Map (15 Tiles)")
+    print("1. 3x3 Map (8 Puzzle)")
+    print("2. 4x4 Map (15 Puzzle)")
     print()
     while not modeInputDone:
         gameMode = input('Selected mode: ')
