@@ -193,19 +193,24 @@ def mainLogic(gameMode):
     
 # Game over logic
 def finishGame():
+    responded = False
     print('Congratulations, you have finished the game in', numMove, 'moves.')
-    repeat = input('Would you like to play again? Y/N: ')
-    if repeat == 'Y':
-        startGame()
-    elif repeat == 'y':
-        startGame()
-    elif repeat == 'N':
-        raise SystemExit
-    elif repeat == 'n':
-        raise SystemExit
+    while not responded:
+        repeat = input('Would you like to play again? Y/N: ')
+        if repeat == 'Y':
+            startGame()
+            responded = True
+        elif repeat == 'y':
+            startGame()
+            responded = True
+        elif repeat == 'N':
+            responded = True
+            raise SystemExit
+        elif repeat == 'n':
+            responded = True
+            raise SystemExit
     else:
-        print('Fatal error. Exiting the game.')
-        raise SystemExit
+        print('Please enter Y or N.')
 
 # Randomizes the puzzle in a way that keeps it solvable
 def randomize():
