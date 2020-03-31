@@ -153,7 +153,6 @@ def playerInput():
     directionCorrect = False
     while not tileCorrect:
         print('Select a tile to move.')
-        print('up -', up, 'down -', down, 'left -', left, 'right -', right)
         try:
             tileSelect = int(input('Move: '))
             # if tileSelect != 0: -> at first I used this because I used an int to represent
@@ -167,6 +166,7 @@ def playerInput():
             print('Error. Please input a number contained within the play area.')
     while not directionCorrect:
         print('Select a direction to move.')
+        print('up -', up, 'down -', down, 'left -', left, 'right -', right)
         try:
             swapFunction(tileCoord[0], tileCoord[1], input('Direction: '))
             directionCorrect = True
