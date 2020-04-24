@@ -1,15 +1,35 @@
 # The Snake Game
-import turtle as t
+import turtle as disp
+
+# Initial Configurations
+width = 500
+height = 500
+bgcolor = 'white'
+disp.screensize(width, height, bgcolor)
+
+# Objects
+objects = ['snake', 'monster']
 
 # Snake unit
-snake = t.Turtle()
+snake = disp.Turtle()
 snake.color('black')
 snake.shape('square')
 snake.penup()
 snake.speed(0)
 
+# Monster Unit
+monster = disp.Turtle()
+monster.color('purple')
+monster.shape('square')
+monster.penup()
+monster.speed(0)
+
+
 # Refresh Tick
-speed = 1
+
+def update():
+    snake.forward(1)
+    disp.ontimer(update, 1)
 
 # Snake turns
 def leftTurn():
@@ -18,17 +38,20 @@ def leftTurn():
 def rightTurn():
     snake.right(90)
 
-def speedUp():
-    global speed
-    speed += 1
-
 # Keybinds
-t.listen()
-t.onkey(leftTurn, 'Left')
-t.onkey(rightTurn, 'Right')
-t.onkey(speedUp, 'Up')
+disp.listen()
+disp.onkey(leftTurn, 'Left')
+disp.onkey(rightTurn, 'Right')
 
 # Collision Detector
 
-while True:
-    snake.forward(speed)
+def moveSnake():
+    snake.forward(15)
+
+def update():
+    moveSnake()
+    disp.ontimer(update, 200)
+
+if __name__ == "__main__":
+    update()
+    disp.mainloop()
