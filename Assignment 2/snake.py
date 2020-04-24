@@ -1,5 +1,6 @@
 # The Snake Game
 import turtle as disp
+import random
 
 # Initial Configurations
 width = 500
@@ -8,13 +9,17 @@ bgcolor = 'white'
 disp.screensize(width, height, bgcolor)
 
 # Game Characters
-# Snake unit
+# Snake Unit
 snake = disp.Turtle()
-snake.color('black')
 snake.shape('square')
 snake.penup()
 snake.speed(0)
-lenSnake = 5
+lenTail = 5
+def snakeHead():
+    snake
+    snake.color('red', 'black')
+def snakeTail():
+    snake.color('green', 'black')
 
 # Monster Unit
 monster = disp.Turtle()
@@ -25,32 +30,54 @@ monster.speed(0)
 
 # Food Object
 food = disp.Turtle()
+def food(tfood):
+    x = random.randrange(-8,8,1)
+    y = random.randrange(-8,8,1)
+    fcoord[0] = x
+    fcoord[1] = y
+    tfood.hideturtle()
+    tfood.pu()
+    tfood.shape("square")
+    tfood.color("red")
+    tfood.goto(x*20,y*20)
+    tfood.stamp()
 
-gameChars = [snake, monster]
+gameObjs = [snake, monster]
 
-# Refresh Tick
+# Refresh Screen
+stamp = 0
+speed = 200
 
-def update():
-    snake.forward(1)
-    disp.ontimer(update, 1)
+def updateSnake():
+    global stamp
+    global speed
+    global lenTail
+    correctLength = False
+    snakeTail() # Snake tail
+    snake.stamp()
+    snakeHead() # Snake head
+    moveSnake()
+    if stamp == lenTail:
+        snake.clearstamps(1)
+    else:
+        stamp += 1
+    disp.ontimer(updateSnake, speed)
 
-# Snake turns
-
+# Unit move
 def moveUp():
-    for unit in gameChars:
+    for unit in gameObjs:
         unit.setheading(90)
-
 def moveDown():
-    for unit in gameChars:
+    for unit in gameObjs:
         unit.setheading(270)
-
 def moveLeft():
-    for unit in gameChars:
+    for unit in gameObjs:
         unit.setheading(180)
-
 def moveRight():
-    for unit in gameChars:
+    for unit in gameObjs:
         unit.setheading(0)
+def moveSnake():
+    snake.forward(22)
     
 # Keybinds
 disp.listen()
@@ -61,24 +88,6 @@ disp.onkey(moveRight, 'Right')
 
 # Collision Detector
 
-
-def moveSnake():
-    snake.forward(15)
-    
-stamp = 0
-def update():
-    global stamp
-    lenSnake = 5
-    correctLength = False
-    snake.stamp()
-    moveSnake()
-    if stamp == lenSnake:
-        snake.clearstamps(1)
-    else:
-        stamp += 1
-    disp.ontimer(update, 200)
-    
-
 if __name__ == "__main__":
-    update()
+    updateSnake()
     disp.mainloop()
