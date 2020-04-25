@@ -46,13 +46,17 @@ monster.speed(0)
 ## Movement Functions
 # Directional Heading
 def moveUp(obj=snake):
-    obj.setheading(90) 
+    if obj.heading() != 270:
+        obj.setheading(90) 
 def moveDown(obj=snake):
-    obj.setheading(270)
+    if obj.heading() != 90:
+        obj.setheading(270)
 def moveLeft(obj=snake):
-    obj.setheading(180)
+    if obj.heading() != 0:
+        obj.setheading(180)
 def moveRight(obj=snake):
-    obj.setheading(0)
+    if obj.heading() != 180:
+        obj.setheading(0)
 
 # Forward Movement
 def moveSnake():
@@ -68,12 +72,13 @@ def pause():
 
 # Collision Detector
 def collisionCheck(pos, hazard):
-    posX = pos[0]
-    posY = pos[1]
     for i in range(len(hazard)):
         register = hazard[i]
-        if posX == register[0] and posY == register[1]:
-            return (hazard[i]) # If none is returned, there is no collision, otherwise the coordinates are returned
+        x = int(register[0])
+        y = int(register[1])
+        print(x,y)
+        if (x,y) == pos or (x-1,y) == pos or (x+1,y) == pos or (x-1,y-1) == pos or (x-1,y+1) == pos or (x+1,y+1) == pos or (x+1,y-1) == pos or (x,y-1) == pos or (x,y+1) == pos:
+            return (hazard[i], i) # If none is returned, there is no collision, otherwise the coordinates are returned, i is returned to make it easier to delete the tuple in the list
 
 ## In-game Item Generators
 # Food Object
@@ -83,20 +88,16 @@ for i in range(9):
     nFood.pu()
     nFood.ht()
     nFood.speed(10)
-    posX = randrange(-12,12,1)*pixelSpace
-    posY = randrange(-12,12,1)*pixelSpace
+    posX = int(randrange(-12,12,1)*pixelSpace)
+    posY = int(randrange(-12,12,1)*pixelSpace)
     nFood.shape('square')
     nFood.color('red')
     nFood.goto(posX, posY)
     stampId = nFood.stamp()
-    foodPos.append([posX, posY, i+1, stampId]) # Marks the position of the food
-                                      # The value is placed last so that collision checker can work with more than just this type of tuple
+    foodPos.append([posX, posY, i+1, stampId]) # The stamp is placed last so that collision detector can be used with different lists
     nFood.color('white')
-    nFood.goto(posX, posY-10)
+    nFood.goto(posX, posY-10) # Centers the number printed on the stamp
     nFood.write(i+1, True, align="center", font=("Arial", 12, "bold"))
-    print(foodPos)
-    #append the xy position to a list and if the snake passes that position
-    #commit action
 
 # Movement Keybinds
 disp.listen()
@@ -109,30 +110,33 @@ disp.onkey(pause, 'space')
 # Snake Entity
 def updateSnake():
     global tailStamp
+    global snakeLen
     global snakeHeadPos
     global snakeTailPos
-    global snakeLen
+    global snakeRefSpd
     if snakeMotion == 1:
         moveSnake()
         snakeTailPos.append(snakeHeadPos) #Append (prev)snake head pos as snaketail pos
-        snakeHeadPos = (snake.pos()) #Get current position and mark as (new) snake head pos
+        snakeHeadPosX = int(snake.pos()[0]) #Get current position and mark as (new) snake head pos
+        snakeHeadPosY = int(snake.pos()[1]) # Needed to seperate to make the value an integer, because sometimes the float is not exact and causes a mismatch
+        snakeHeadPos = (snakeHeadPosX, snakeHeadPosY)
+        print (snakeHeadPos)
         collisionHazard = collisionCheck(snakeHeadPos, foodPos)
-        if collisionHazard != None: # If there is a collision
-            snakeLen += collisionHazard[2] # Add length
-            print (collisionHazard[3])
-            nFood.clearstamp(collisionHazard[3])
-            nFood.clearstamp(collisionHazard[3])
-
-        snakeTail() # Snake tail
+        if collisionHazard != None: # If there is collision
+            snakeLen += collisionHazard[0][2] # Add length to snake
+            nFood.clearstamp(collisionHazard[0][3])
+            del foodPos[collisionHazard[1]]  # Deletes food from the list
+        snakeTail() # Switch to draw snake tail
         snake.stamp()
-        snakeHead() # Snake head
+        snakeHead() # Switch to draw snake head
         if tailStamp == snakeLen:
+            snakeRefSpd = 250
             snake.clearstamps(1)
             del snakeTailPos[1:]
         else:
+            snakeRefSpd = 500 # Snake is slowed when tail not fully extended
             tailStamp += 1
     disp.ontimer(updateSnake, snakeRefSpd)
-
 
 
 if __name__ == "__main__":
