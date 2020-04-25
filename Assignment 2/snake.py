@@ -28,7 +28,8 @@ for side in range(4):
     border.right(90)
     border.forward(500)
 
-## In-game Unit Attributes
+## UNIT ATTRIBUTES
+
 # Snake Unit (Player)
 snake = disp.Turtle()
 snake.shape('square')
@@ -58,7 +59,8 @@ monster.goto(posX, posY)
 monTailCol = 0 # Times that monster collides with snake tail
 monRefSpd = randrange(350, 450, 50)
 
-## Movement Functions
+## MOVE FUNCTIONS
+
 # Get Current Position (with rounding, because sometimes there is a really small error that will mess up functions)
 def getPosition(unit, xy):
     unitPosX = int(round(unit.xcor(),2))
@@ -83,7 +85,6 @@ def turnRight(obj=snake):
         obj.setheading(0)
 
 # Forward Movement
-# Analogue
 def moveSnake():
     if outOfBound == 0:
         snake.forward(pixelSpace)
@@ -94,7 +95,7 @@ def pause():
     else:
         snakePaused = 1
 
-# Game Checks
+# GAME CHECKS
 def collisionCheck(pos, hazard):
     for i in range(len(hazard)):
         register = hazard[i]
@@ -135,10 +136,10 @@ def boundaryCheck():
         elif  (-250 <= posX+pixelSpace <= 250):
             outOfBound = 0
 
-def statusCheck():
+def statusCheck(): #checks victory condition and updates topbar status
     pass
 
-## In-game Item Generators
+## CREATE ENTITY
 # Food Object
 foodPos = []
 nFood = disp.Turtle()
@@ -156,8 +157,6 @@ for i in range(9):
     nFood.color('white')
     nFood.goto(posX, posY-10) # Centers the number printed on the stamp
     nFood.write(i+1, True, align="center", font=("Arial", 12, "bold"))
-
-
 
 ## DYNAMIC ENTITIES
 # Snake Entity
@@ -219,7 +218,7 @@ def updateMonster():
         gameOver = True
     disp.ontimer(updateMonster, monRefSpd)
 
-# Listen Events
+## LISTEN FOR EVENTS
 # Movement Keybinds
 disp.listen()
 disp.onkey(turnUp, 'Up')
