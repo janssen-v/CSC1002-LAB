@@ -1,93 +1,109 @@
-# The Snake Game
+## The Snake Game
 import turtle as disp
 import random
 
-# Initial Configurations
-width = 500
-height = 500
-bgcolor = 'white'
-disp.screensize(width, height, bgcolor)
+## Setup Configuration
+# Window Resolution
+disp.setup(540, 540)
 
-# Game Characters
-# Snake Unit
+# Game Area Size
+pixelSpace = 20 # Distance between each block
+disp.screensize(500, 500) # Game Area
+border = disp.Turtle()
+border.hideturtle()
+border.penup()
+border.speed(0)
+border.setposition(250, 250)
+border.pendown()
+for side in range(4):
+    border.right(90)
+    border.forward(500)
+
+## In-game Units
+# Snake Unit (Player)
 snake = disp.Turtle()
 snake.shape('square')
 snake.penup()
 snake.speed(0)
-lenTail = 5
+lenSnake = 6
 def snakeHead():
-    snake
+    snake.shape('turtle')
     snake.color('red', 'black')
 def snakeTail():
+    snake.shape('square')
     snake.color('green', 'black')
 
-# Monster Unit
+# Monster Unit (Enemy)
 monster = disp.Turtle()
 monster.color('purple')
 monster.shape('square')
 monster.penup()
 monster.speed(0)
 
+# Moveable Objects
+gameObj = [snake, monster]
+
+## Movement Functions
+# Directional Heading
+def moveUp():
+    snake.setheading(90)
+def moveDown():
+    snake.setheading(270)
+def moveLeft():
+    snake.setheading(180)
+def moveRight():
+    snake.setheading(0)
+
+# Forward Movement
+def moveSnake():
+    snake.forward(pixelSpace)
+def moveMonster():
+    monster.forward(pixelSpace)
+
+## In-game Items
 # Food Object
-food = disp.Turtle()
-def food(tfood):
-    x = random.randrange(-8,8,1)
-    y = random.randrange(-8,8,1)
-    fcoord[0] = x
-    fcoord[1] = y
-    tfood.hideturtle()
-    tfood.pu()
-    tfood.shape("square")
-    tfood.color("red")
-    tfood.goto(x*20,y*20)
-    tfood.stamp()
+def food():
+    for i in range(9):
+        nFood = (i+1 for i in range(9))
+        nFood = disp.Turtle()
+        x = random.randrange(-10,10,1)
+        y = random.randrange(-10,10,1)
+        nFood.hideturtle()
+        nFood.penup()
+        nFood.shape("square")
+        nFood.color("red")
+        nFood.goto(x*pixelSpace,y*pixelSpace)
+        nFood.stamp()
 
-gameObjs = [snake, monster]
+# Movement Keybinds
+disp.listen()
+disp.onkey(moveUp(), 'Up')
+disp.onkey(moveDown(), 'Down')
+disp.onkey(moveLeft(), 'Left')
+disp.onkey(moveRight(), 'Right')
 
-# Refresh Screen
+# Snake Refresher
 stamp = 0
-speed = 200
+speed = 250
 
 def updateSnake():
     global stamp
     global speed
-    global lenTail
+    global lenSnake
     correctLength = False
+    moveSnake()
     snakeTail() # Snake tail
     snake.stamp()
     snakeHead() # Snake head
-    moveSnake()
-    if stamp == lenTail:
+    if stamp == lenSnake:
         snake.clearstamps(1)
     else:
         stamp += 1
     disp.ontimer(updateSnake, speed)
 
-# Unit move
-def moveUp():
-    for unit in gameObjs:
-        unit.setheading(90)
-def moveDown():
-    for unit in gameObjs:
-        unit.setheading(270)
-def moveLeft():
-    for unit in gameObjs:
-        unit.setheading(180)
-def moveRight():
-    for unit in gameObjs:
-        unit.setheading(0)
-def moveSnake():
-    snake.forward(22)
-    
-# Keybinds
-disp.listen()
-disp.onkey(moveUp, 'Up')
-disp.onkey(moveDown, 'Down')
-disp.onkey(moveLeft, 'Left')
-disp.onkey(moveRight, 'Right')
-
 # Collision Detector
 
 if __name__ == "__main__":
+    food()
     updateSnake()
     disp.mainloop()
