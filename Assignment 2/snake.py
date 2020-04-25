@@ -6,6 +6,15 @@ from random import randrange
 # Window Resolution
 disp.setup(540, 540)
 
+# Opening Title
+title = disp.Turtle()
+title.ht()
+title.pu()
+title.color('black')
+title.setpos(0, 150)
+title.write("Welcome to Vincent's snake game"\
+, False, align='center', font=('arial', 16, 'bold'))
+
 # Game Area Size
 pixelSpace = 20 # Distance between each block
 disp.screensize(500, 500) # Game Area
@@ -47,7 +56,7 @@ posX = int(randrange(-12,12,1)*pixelSpace)
 posY = int(randrange(-12,12,1)*pixelSpace)
 monster.goto(posX, posY)
 monTailCol = 0 # Times that monster collides with snake tail
-monRefSpd = randrange(300, 450, 50)
+monRefSpd = randrange(350, 450, 50)
 
 ## Movement Functions
 # Get Current Position (with rounding, because sometimes there is a really small error that will mess up functions)
@@ -76,22 +85,8 @@ def turnRight(obj=snake):
 # Forward Movement
 # Analogue
 def moveSnake():
-    if not boundaryCheck():
+    if outOfBound == 0:
         snake.forward(pixelSpace)
-def moveMonster():
-    monster.forward(pixelSpace)
-
-# Digital (mark for deletion)
-def moveSnakeDigi():
-    if int(snake.heading()) == 90:           # Up
-        snake.sety(snake.ycor()+20)
-    elif int(snake.heading()) == 270:         # Down
-        snake.sety(snake.ycor()-20)
-    elif int(snake.heading()) == 180:         # Left
-        snake.sety(snake.xcor()-20)
-    elif int(snake.heading()) == 0:           # Right
-        snake.sety(snake.xcor()+20)
-
 def pause():
     global snakePaused
     if snakePaused != 0:
@@ -99,7 +94,7 @@ def pause():
     else:
         snakePaused = 1
 
-# Collision Detector
+# Game Checks
 def collisionCheck(pos, hazard):
     for i in range(len(hazard)):
         register = hazard[i]
@@ -114,12 +109,34 @@ def boundaryCheck():
     heading = int(heading)
     posX = int(round(snake.xcor(),2))
     posY = int(round(snake.ycor(),2))
-    if not (-230 <= posX <= 230 and -230 <= posY <= 230):
-        outOfBound = 1
-        moveSnake()
-        return True
-    else:
-        outOfBound = 0
+
+    if heading == 90: #Up
+        if not (-250 <= posY+pixelSpace <= 250):  
+            outOfBound = 1
+            moveSnake()
+        elif (-250 <= posY+pixelSpace <= 250):  
+            outOfBound = 0
+    elif heading == 270: #Down
+        if not (-250 <= posY-pixelSpace <= 250):
+            outOfBound = 1
+            moveSnake()
+        elif (-250 <= posY-pixelSpace <= 250):
+            outOfBound = 0
+    elif heading == 180: #Left
+        if not (-250 <= posX-pixelSpace <= 250):  
+            outOfBound = 1
+            moveSnake()
+        elif (-250 <= posX-pixelSpace <= 250): 
+            outOfBound = 0
+    elif heading == 0: #Right
+        if not (-250 <= posX+pixelSpace <= 250): 
+            outOfBound = 1
+            moveSnake()
+        elif  (-250 <= posX+pixelSpace <= 250):
+            outOfBound = 0
+
+def statusCheck():
+    pass
 
 ## In-game Item Generators
 # Food Object
@@ -140,15 +157,9 @@ for i in range(9):
     nFood.goto(posX, posY-10) # Centers the number printed on the stamp
     nFood.write(i+1, True, align="center", font=("Arial", 12, "bold"))
 
-# Movement Keybinds
-disp.listen()
-disp.onkey(turnUp, 'Up')
-disp.onkey(turnDown, 'Down')
-disp.onkey(turnLeft, 'Left')
-disp.onkey(turnRight, 'Right')
-disp.onkey(pause, 'space')
 
-## Dynamic Entities
+
+## DYNAMIC ENTITIES
 # Snake Entity
 def updateSnake():
     global tailStamp
@@ -175,6 +186,7 @@ def updateSnake():
             snakeRefSpd = 250
             snake.clearstamps(1)
             del snakeTailPos[1]
+            # Insert Win Condition Check Here
         else:
             snakeRefSpd = 500 # Snake is slowed when tail not fully extended
             tailStamp += 1
@@ -190,15 +202,15 @@ def updateMonster():
     if abs(dX) >= abs(dY): # if dX > dY, move X, otherwise move Y
         x = monster.xcor()
         if dX > 0: # if monster is to right of snake, move left, otherwise move right
-            monster.setx(x - 20)
+            monster.setx(x - pixelSpace)
         elif dX < 0:
-            monster.setx(x + 20)
+            monster.setx(x + pixelSpace)
     elif abs(dY) >= abs(dX):
         y = monster.ycor()
         if dY > 0: # if monster is above snake, move down, otherwise move up
-            monster.sety(y - 20)
+            monster.sety(y - pixelSpace)
         elif dY < 0:
-            monster.sety(y + 20)
+            monster.sety(y + pixelSpace)
 
     monsterPos = (getPosition(monster, 'x'), getPosition(snake, 'x'))
     if collisionCheck(monsterPos, snakeTailPos) != None: # if there is collision
@@ -206,6 +218,19 @@ def updateMonster():
     if collisionCheck(monsterPos, [snakeHeadPos]) != None: # if there is collision
         gameOver = True
     disp.ontimer(updateMonster, monRefSpd)
+
+# Listen Events
+# Movement Keybinds
+disp.listen()
+disp.onkey(turnUp, 'Up')
+disp.onkey(turnDown, 'Down')
+disp.onkey(turnLeft, 'Left')
+disp.onkey(turnRight, 'Right')
+disp.onkey(pause, 'space')
+
+# Click Binds
+def clickStart():
+    pass
 
 if __name__ == "__main__":
     disp.update()
