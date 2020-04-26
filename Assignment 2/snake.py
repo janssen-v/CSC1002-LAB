@@ -76,8 +76,8 @@ down = 270
 left = 180
 right = 0
 
-def turnUp(obj=snake):
-    if obj.heading() != down:
+def turnUp(obj=snake):          # Initially the turn function was going to be used for both snake and monster
+    if obj.heading() != down:   # but it was unreliable, so it is only used for the snake now
         obj.setheading(up) 
 def turnDown(obj=snake):
     if obj.heading() != up:
@@ -89,12 +89,7 @@ def turnRight(obj=snake):
     if obj.heading() != left:
         obj.setheading(right)
 
-# Forward Movement
-def moveSnake(): # DEPRECATE IN NEXT BUILD
-    if outOfBound == 0:
-        snake.forward(blockDist)
-
-def pause():
+def pause(): # Toggle Snake Pause Flag
     global snakePaused
     if snakePaused != 0:
         snakePaused = 0
