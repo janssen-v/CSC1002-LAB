@@ -169,7 +169,7 @@ def statusCheck():                  # checks victory condition and updates topba
     global gameOver
     global snakeTailExt
     timeElapsed += (snakeRefSpd/1000)
-    if gameOver or (len(nFoodPos) == 0 and snakeTailExt): 
+    if gameOver or (len(nFoodPos) == 0 and snakeTailExt == True): 
         gameOver = True
         title.setpos(0,0)
         if len(nFoodPos) == 0:
@@ -259,11 +259,12 @@ def drawTail():
 
             if snakeTailCount == snakeLen:
                 snakeTailExt = True
-                snakeRefSpd = 250
+                snakeRefSpd = 100
                 snake.clearstamps(1)
                 del snakeTailPos[0]
             else:
-                snakeRefSpd = 400 # Snake is slowed when tail not fully extended
+                snakeTailExt = False
+                snakeRefSpd = 200 # Snake is slowed when tail not fully extended
                 snakeTailCount += 1
 
 ## DYNAMIC ENTITY REFRESH
