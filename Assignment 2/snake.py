@@ -69,7 +69,7 @@ nFood.speed(0)             # It looks better when speed is 10, maybe next time
 
 ## GLOBAL OBJECT ATTRIBUTES
 # Snake (Object)
-snakePaused = False        # Flag for snake state. (Pause = False, Move = True)
+snakePaused = False        # Flag for snake state. (Pause = True, Move = False)
 outOfBound = False         # Flag for boundary. (Inside = False, Outside = True)
 snakeRefSpd = 250          # Refresh Speed of Snake (move speed)
 snakeLen = 6
