@@ -283,7 +283,6 @@ def refMon():
     global gameOver
     global monTailHit
     monRefSpd = randrange(250, 500, 50) # Generate random refresh speed (Have tested, it is possible to win with this setting)
-    # Measure future distance to snake with math in all four axes, go to place closest to snake
     dX = getRoundPos(monster, 'x') - getRoundPos(snake, 'x')
     dY = getRoundPos(monster, 'y') - getRoundPos(snake, 'y')
 
