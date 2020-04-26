@@ -181,7 +181,7 @@ def statusCheck():                  # checks victory condition and updates topba
             title.write("GAME OVER !!!"\
                 , False, align='center', font=('arial', 25, 'bold'))
     else:
-        disp.title(('Snake | Contacted: ' + str(monTailHit) + ' , Time Elapsed: ' + str(int(timeElapsed)) + 's'))
+        disp.title(('Snake | Contacted: ' + str(monTailHit) + ' , Time Elapsed: ' + str(round(timeElapsed,1)) + 's'))
 
 ## CREATE STATIC ENTITY
 def spawnTitleScr():
