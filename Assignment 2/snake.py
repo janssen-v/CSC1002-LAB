@@ -16,7 +16,7 @@ title.write("Welcome to Vincent's snake game"\
 , False, align='center', font=('arial', 16, 'bold'))
 
 # Game Area Size
-pixelSpace = 20 # Distance between each block
+blockDist = 20 # Distance between each block
 disp.screensize(500, 500) # Game Area
 border = disp.Turtle()
 border.ht()
@@ -53,11 +53,11 @@ monster.color('purple')
 monster.shape('square')
 monster.pu()
 monster.speed(0)
-posX = int(randrange(-12,12,1)*pixelSpace)
-posY = int(randrange(-12,12,1)*pixelSpace)
+posX = int(randrange(-12,12,1)*blockDist)
+posY = int(randrange(-12,12,1)*blockDist)
 monster.goto(posX, posY)
 monTailCol = 0 # Times that monster collides with snake tail
-monRefSpd = randrange(350, 450, 50)
+monRefSpd = randrange(400, 500, 50)
 
 ## MOVE FUNCTIONS
 
@@ -71,23 +71,29 @@ def getPosition(unit, xy):
         return unitPosY
 
 # Directional Heading
+up = 90
+down = 270
+left = 180
+right = 0
+
 def turnUp(obj=snake):
-    if obj.heading() != 270:
-        obj.setheading(90) 
+    if obj.heading() != down:
+        obj.setheading(up) 
 def turnDown(obj=snake):
-    if obj.heading() != 90:
-        obj.setheading(270)
+    if obj.heading() != up:
+        obj.setheading(down)
 def turnLeft(obj=snake):
-    if obj.heading() != 0:
-        obj.setheading(180)
+    if obj.heading() != right:
+        obj.setheading(left)
 def turnRight(obj=snake):
-    if obj.heading() != 180:
-        obj.setheading(0)
+    if obj.heading() != left:
+        obj.setheading(right)
 
 # Forward Movement
-def moveSnake():
+def moveSnake(): # DEPRECATE IN NEXT BUILD
     if outOfBound == 0:
-        snake.forward(pixelSpace)
+        snake.forward(blockDist)
+
 def pause():
     global snakePaused
     if snakePaused != 0:
@@ -96,45 +102,52 @@ def pause():
         snakePaused = 1
 
 # GAME CHECKS
-def collisionCheck(pos, hazard):
+def colCheck(pos, hazard): # The hazard is a tuple of coordinates inside a list in the first and second index
     for i in range(len(hazard)):
         register = hazard[i]
         x = int(register[0])
         y = int(register[1])
-        if (x,y) == pos or (x-1,y) == pos or (x+1,y) == pos or (x-1,y-1) == pos or (x-1,y+1) == pos or (x+1,y+1) == pos or (x+1,y-1) == pos or (x,y-1) == pos or (x,y+1) == pos:
+        if (x,y) == pos: # or (x-1,y) == pos or (x+1,y) == pos or (x-1,y-1) == pos or (x-1,y+1) == pos or (x+1,y+1) == pos or (x+1,y-1) == pos or (x,y-1) == pos or (x,y+1) == pos:
             return (hazard[i], i) # If none is returned, there is no collision, otherwise the coordinates are returned, i is returned to make it easier to delete the tuple in the list
 
-def boundaryCheck():
-    global outOfBound
-    heading = snake.heading()
-    heading = int(heading)
-    posX = int(round(snake.xcor(),2))
-    posY = int(round(snake.ycor(),2))
 
-    if heading == 90: #Up
-        if not (-250 <= posY+pixelSpace <= 250):  
-            outOfBound = 1
-            moveSnake()
-        elif (-250 <= posY+pixelSpace <= 250):  
+def attemptMove(): # Move to production
+    global outOfBound
+    curX = snake.xcor()
+    curY = snake.ycor()
+    boundary = range(-250,251,1)
+
+    if snake.heading() == up: # Used this instead of snake.forward because more reliable
+        nextY = curY + blockDist
+        if nextY in boundary:
             outOfBound = 0
-    elif heading == 270: #Down
-        if not (-250 <= posY-pixelSpace <= 250):
+            snake.sety(nextY)
+        else:
             outOfBound = 1
-            moveSnake()
-        elif (-250 <= posY-pixelSpace <= 250):
-            outOfBound = 0
-    elif heading == 180: #Left
-        if not (-250 <= posX-pixelSpace <= 250):  
+
+    if snake.heading() == down:
+        nextY = curY - blockDist
+        if nextY in boundary:
+            snake.sety(nextY)
+        else:
             outOfBound = 1
-            moveSnake()
-        elif (-250 <= posX-pixelSpace <= 250): 
+
+    if snake.heading() == left:
+        nextX = curX - blockDist
+        if nextX in boundary:
             outOfBound = 0
-    elif heading == 0: #Right
-        if not (-250 <= posX+pixelSpace <= 250): 
+            snake.setx(nextX)
+        else:
             outOfBound = 1
-            moveSnake()
-        elif  (-250 <= posX+pixelSpace <= 250):
+
+    if snake.heading() == right:
+        nextX = curX + blockDist
+        if nextX in boundary:
             outOfBound = 0
+            snake.setx(nextX)
+        else:
+            outOfBound = 1
+
 
 def statusCheck(): #checks victory condition and updates topbar status
     pass
@@ -147,8 +160,8 @@ for i in range(9):
     nFood.pu()
     nFood.ht()
     nFood.speed(10)
-    posX = int(randrange(-12,12,1)*pixelSpace)
-    posY = int(randrange(-12,12,1)*pixelSpace)
+    posX = int(randrange(-12,12,1)*blockDist)
+    posY = int(randrange(-12,12,1)*blockDist)
     nFood.shape('square')
     nFood.color('red')
     nFood.goto(posX, posY)
@@ -166,29 +179,30 @@ def updateSnake():
     global snakeHeadPos # Because the head needs to start at someplace, since tailpos requires it in line 149
     global snakeTailPos
     global snakeRefSpd
-    boundaryCheck()
-    print((round(snake.xcor(),2)), (round(snake.ycor(),2)), outOfBound)
-    if snakePaused == 0 and outOfBound == 0:
-        moveSnake()
-        snakeTailPos.append(snakeHeadPos) #Append (prev)snake head pos as snaketail pos
-        snakeHeadPos = (getPosition(snake, 'x'), getPosition(snake, 'y')) #Get current position and mark as (new) snake head pos
-        print (snakeHeadPos) # DEBUG #1
-        collisionHazard = collisionCheck(snakeHeadPos, foodPos)
-        if collisionHazard != None: # If there is collision
-            snakeLen += collisionHazard[0][2] # Add length to snake
-            nFood.clearstamp(collisionHazard[0][3])
-            del foodPos[collisionHazard[1]]  # Deletes food from the list
-        snakeTail() # Switch to draw snake tail
-        snake.stamp()
-        snakeHead() # Switch to draw snake head
-        if tailStamp == snakeLen:
-            snakeRefSpd = 250
-            snake.clearstamps(1)
-            del snakeTailPos[1]
-            # Insert Win Condition Check Here
-        else:
-            snakeRefSpd = 500 # Snake is slowed when tail not fully extended
-            tailStamp += 1
+    
+
+    if snakePaused == 0:
+        attemptMove()
+        if outOfBound == 0:
+            snakeTailPos.append(snakeHeadPos) #Append (prev)snake head pos as snaketail pos
+            snakeHeadPos = (getPosition(snake, 'x'), getPosition(snake, 'y')) #Get current position and mark as (new) snake head pos
+            print (snakeHeadPos) # DEBUG #1
+            collisionHazard = colCheck(snakeHeadPos, foodPos)
+            if collisionHazard != None: # If there is collision
+                snakeLen += collisionHazard[0][2] # Add length to snake
+                nFood.clearstamp(collisionHazard[0][3])
+                del foodPos[collisionHazard[1]]  # Deletes food from the list
+            snakeTail() # Switch to draw snake tail
+            snake.stamp()
+            snakeHead() # Switch to draw snake head
+            if tailStamp == snakeLen:
+                snakeRefSpd = 250
+                snake.clearstamps(1)
+                del snakeTailPos[1]
+                # Insert Win Condition Check Here
+            else:
+                snakeRefSpd = 500 # Snake is slowed when tail not fully extended
+                tailStamp += 1
     disp.ontimer(updateSnake, snakeRefSpd)
 
 # Monster Entity
@@ -201,20 +215,20 @@ def updateMonster():
     if abs(dX) >= abs(dY): # if dX > dY, move X, otherwise move Y
         x = monster.xcor()
         if dX > 0: # if monster is to right of snake, move left, otherwise move right
-            monster.setx(x - pixelSpace)
+            monster.setx(x - blockDist)
         elif dX < 0:
-            monster.setx(x + pixelSpace)
+            monster.setx(x + blockDist)
     elif abs(dY) >= abs(dX):
         y = monster.ycor()
         if dY > 0: # if monster is above snake, move down, otherwise move up
-            monster.sety(y - pixelSpace)
+            monster.sety(y - blockDist)
         elif dY < 0:
-            monster.sety(y + pixelSpace)
+            monster.sety(y + blockDist)
 
     monsterPos = (getPosition(monster, 'x'), getPosition(snake, 'x'))
-    if collisionCheck(monsterPos, snakeTailPos) != None: # if there is collision
+    if colCheck(monsterPos, snakeTailPos) != None: # if there is collision
         monTailCol += 1
-    if collisionCheck(monsterPos, [snakeHeadPos]) != None: # if there is collision
+    if colCheck(monsterPos, [snakeHeadPos]) != None: # if there is collision
         gameOver = True
     disp.ontimer(updateMonster, monRefSpd)
 
