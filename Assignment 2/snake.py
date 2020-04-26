@@ -259,12 +259,12 @@ def drawTail():
 
             if snakeTailCount == snakeLen:
                 snakeTailExt = True
-                snakeRefSpd = 100
+                snakeRefSpd = 250
                 snake.clearstamps(1)
                 del snakeTailPos[0]
             else:
                 snakeTailExt = False
-                snakeRefSpd = 200 # Snake is slowed when tail not fully extended
+                snakeRefSpd = 400 # Snake is slowed when tail not fully extended
                 snakeTailCount += 1
 
 ## DYNAMIC ENTITY REFRESH
