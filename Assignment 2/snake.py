@@ -39,7 +39,7 @@ def getRoundPos(unit, xy):                 # Defined a function to get rounded p
     elif xy == 'xy':
         return (unitPosX, unitPosY)
 
-## TURTLE ATTRIBUTES
+## OBJECT (TURTLE) ATTRIBUTES
 # Title Screen (Turtle)
 title = disp.Turtle()
 title.pu()
@@ -83,7 +83,7 @@ monTailHit = 0             # Times that monster collides with snake tail
 # Food (Object)
 nFoodPos = []              # List of all food positions
 
-# Game (Status)
+# World (Status)
 gameOver = False
 timeElapsed = 0            # Total in-game time
 
@@ -201,8 +201,8 @@ def spawnTitleScr():
     title.write("Click anywhere on the screen to start the game, have fun !!"\
         , False, align='left', font=('arial', 12, 'bold'))
 
-def spawnSnake():                   # Not neccessary, but added to make things consistent
-    stSnakeH()
+def spawnSnake():  # Not actually neccessary, but added to keep things consistent
+    stSnakeH()	# Sets the snake (turtle) object to display head at start
     snake.st()
 
 def spawnMonster():
@@ -212,7 +212,7 @@ def spawnMonster():
         posY = int(randrange(-12,4,1)*blockDist) # Max spawn in Y dimension is 4, so it doesn't cover the title
         dX = abs(posX - 0)
         dY = abs(posY - 0)
-        if dX >= 8*blockDist and dY >= 8*blockDist:
+        if dX >= 8*blockDist and dY >= 8*blockDist: # Breaks the loop when monster spawn is sufficiently far away
             break
     monster.goto(posX, posY)
 
@@ -226,7 +226,7 @@ def spawnFood():
         stampId = nFood.stamp()
         nFoodPos.append([posX, posY, i+1, stampId]) # The stamp is placed last so that collision detector can be used with different lists
         nFood.color('white')
-        nFood.goto(posX, posY-10) # Centers the number printed on the stamp
+        nFood.goto(posX, posY-10) 					# Centers the number printed on the stamp
         nFood.write(i+1, True, align="center", font=("Arial", 12, "bold"))
 
 ## ENTITY FUNCTIONS
@@ -259,12 +259,12 @@ def drawTail():
 
             if snakeTailCount == snakeLen:
                 snakeTailExt = True
-                snakeRefSpd = 250
+                snakeRefSpd = 250 # moves every 250 ms or 0.25s
                 snake.clearstamps(1)
                 del snakeTailPos[0]
             else:
                 snakeTailExt = False
-                snakeRefSpd = 400 # Snake is slowed when tail not fully extended
+                snakeRefSpd = 400 # Snake is slowed to 400ms refresh when tail not fully extended
                 snakeTailCount += 1
 
 ## DYNAMIC ENTITY REFRESH
@@ -300,10 +300,11 @@ def refMon():
         elif dY < 0:
             monster.sety(y + blockDist)
 
-    if colCheck(getRoundPos(monster, 'xy'), snakeTailPos) != None: # if there is collision
-        monTailHit += 1
     if colCheck(getRoundPos(monster, 'xy'), [getRoundPos(snake, 'xy')]) != None: # if there is collision
         gameOver = True
+    if colCheck(getRoundPos(monster, 'xy'), snakeTailPos) != None: # if there is collision
+        monTailHit += 1
+
     disp.update() # design specification asked for manual display update
     disp.ontimer(refMon, monRefSpd)
 
