@@ -2,110 +2,102 @@
 import turtle as disp
 from random import randrange
 
-## SETUP CONFIG
+## WORLD CONFIGURATION
+# Window
+disp.title('Snake by Vincentius Janssen')  # Initial title screen
+disp.setup(520, 520)                       # Made bigger than playable area because in some devices
+disp.tracer(0)                             # the window will obscure part of the game area, occasionally.
 
-# Resolution
-disp.setup(520, 520) # Made bigger than playable area because in some devices the window will obscure part of the game area
-
-# World
-blockDist = 20 # Distance between each block
-disp.screensize(500, 500) # Playable Game Area
+# Screen
+width  = 500
+height = 500
+bgColor = 'white'
+disp.screensize(width, height, bgColor)    # Playable Game Area
+blockDist = 20                             # Distance between each block
 
 # Border
-border = disp.Turtle()
-border.ht()
+border = disp.Turtle()                     # Not part of STATIC ENTITY because
+border.ht()                                # border considered as world object
 border.pu()
 border.speed(0)
 
+# Draw Border
 border.setposition(250, 250)
 border.pd()
 for side in range(4):
     border.right(90)
     border.forward(500)
 
-# Opening Title
-title = disp.Turtle()
-title.ht()
-title.pu()
-title.color('black')
-title.setpos(0, 150)
-title.write("Welcome to Vincent's snake game"\
-, False, align='center', font=('arial', 16, 'bold'))
-
-
 # REUSABLE FUNCTIONS
-
-def getRoundPos(unit, xy):                  # Defined a function to get rounded position, because there was one time
-    unitPosX = int(round(unit.xcor(),2))    # during testing that a float was off by a very small amount that caused    
-    unitPosY = int(round(unit.ycor(),2))    # a mismatch in the game checks, causing boundary clipping. By defining
-    if xy == 'x':                           # this as a function, the rounding can be implemented while being readable.
+def getRoundPos(unit, xy):                 # Defined a function to get rounded position, because there was one time
+    unitPosX = int(round(unit.xcor(),2))   # during testing that a float was off by a very small amount that caused    
+    unitPosY = int(round(unit.ycor(),2))   # a mismatch in the game checks, causing boundary clipping. By defining
+    if xy == 'x':                          # this as a function, the rounding can be implemented more readably.
         return unitPosX
     elif xy == 'y':
         return unitPosY
     elif xy == 'xy':
         return (unitPosX, unitPosY)
-        
-## OBJECT ATTRIBUTES
 
-# Snake
+## TURTLE ATTRIBUTES
+# Title Screen (Turtle)
+title = disp.Turtle()
+title.pu()
+title.ht()
+title.color('black')
+
+# Snake (Turtle)
 snake = disp.Turtle()
 snake.pu()
-snake.speed(0)
+snake.ht()
+snake.speed(0) # Draw speed
 snake.shape('square')
 
-snakePaused = 0 # 1 if paused, 0 if moving
-outOfBound = 0 # 1 if at boundary and moving out of bounds
-snakeRefSpd = 250 # Refresh Speed of Snake
-
-snakeLen = 6
-snakeTailCount = 0
-snakeHeadPos = getRoundPos(snake, 'xy')
-snakeTailPos = []
-
-def snakeHead():
-    snake.color('black', 'yellow')
-def snakeTail():
-    snake.color('yellow', 'black')
-
-# Monster
+# Monster (Turtle)
 monster = disp.Turtle()
 monster.pu()
+monster.ht()
 monster.speed(0)
 monster.color('purple')
 monster.shape('square')
 
-while True:
-    posX = int(randrange(-12,12,1)*blockDist)
-    posY = int(randrange(-12,6,1)*blockDist) # Max spawn in Y dimension is 6, so it doesn't cover the title
-    dX = abs(posX - 0)
-    dY = abs(posY - 0)
-    if dX >= 4*blockDist or dY >= 4*blockDist:
-        break
-
-monster.goto(posX, posY)
-
-monTailHit = 0 # Times that monster collides with snake tail
-monRefSpd = randrange(400, 500, 50)
-
-# Food
+# Food (Turtle)
 nFood = disp.Turtle()
 nFood.pu()
-nFood.speed(0) # It looks better when speed is 10, maybe next time
 nFood.ht()
+nFood.speed(0)             # It looks better when speed is 10, maybe next time
 
-nFoodPos = []
+## GLOBAL OBJECT ATTRIBUTES
+# Snake (Object)
+snakePaused = 0            # Flag for snake state. (Pause = 1, Move = 0)
+outOfBound = 0             # Flag for boundary. (Inside = 0, Outside = 1)
+snakeRefSpd = 250          # Refresh Speed of Snake (move speed)
+snakeLen = 6
+snakeTailCount = 0
+snakeHeadPos = getRoundPos(snake, 'xy')
+snakeTailPos = []          # list of all current positions of snake tail, used for collision detection
 
+# Monster (Object)
+monTailHit = 0             # Times that monster collides with snake tail
+monRefSpd = randrange(250, 500, 50)
 
-## MOVE FUNCTIONS
+# Food (Object)
+nFoodPos = []              # List of all food positions
+
+# Game (Status)
+gameOver = False
+timeElapsed = 0            # Total in-game time
+
+## ENTITY MOTION LOGIC
 # Directional Headings
 up = 90    
 down = 270
 left = 180
 right = 0
 
-def turnUp(obj=snake):          # Initially the turn function was going to be used for both snake and monster
-    if obj.heading() != down:   # but it was unreliable, so it is only used for the snake now, left it with
-        obj.setheading(up)      # obj instead of changing it to snake to keep it modular for future changes.
+def turnUp(obj=snake):              # Initially the turn function was going to be used for both snake and monster
+    if obj.heading() != down:       # but it was unreliable, so it is only used for the snake now, left it with
+        obj.setheading(up)          # obj instead of changing it to snake to keep it modular for future changes.
 
 def turnDown(obj=snake):
     if obj.heading() != up:
@@ -157,7 +149,7 @@ def attemptMove():
             outOfBound = 1
 
 # Snake Pause
-def pause(): # Toggle Snake Pause Flag
+def pause():                        # Toggle Snake Pause Flag
     global snakePaused
     if snakePaused != 0:
         snakePaused = 0
@@ -165,18 +157,65 @@ def pause(): # Toggle Snake Pause Flag
         snakePaused = 1
 
 # GAME CHECKS
-def colCheck(pos, hazard):  # The hazard is a tuple of coordinates inside a list in the first and second index
+def colCheck(pos, hazard):          # The hazard is a tuple of coordinates inside a list in the first and second index
     for i in range(len(hazard)):
         register = hazard[i]
         x = int(register[0])
         y = int(register[1])
-        if (x,y) == pos: # or (x-1,y) == pos or (x+1,y) == pos or (x-1,y-1) == pos or (x-1,y+1) == pos or (x+1,y+1) == pos or (x+1,y-1) == pos or (x,y-1) == pos or (x,y+1) == pos: -> DEPRECATED since no longer using obj.forward
-            return (hazard[i], i) # If none is returned there is no collision, otherwise the coordinates are returned, i is returned for indexing the tuple in the list
+        if (x,y) == pos:            # or (x-1,y) == pos or (x+1,y) == pos or (x-1,y-1) == pos or (x-1,y+1) == pos or (x+1,y+1) == pos or (x+1,y-1) == pos or (x,y-1) == pos or (x,y+1) == pos: -> DEPRECATED since no longer using obj.forward
+            return (hazard[i], i)   # If none is returned there is no collision, otherwise the coordinates are returned, i is returned for indexing the tuple in the list
 
-def statusCheck(): #checks victory condition and updates topbar status
-    pass
+def statusCheck():                  # checks victory condition and updates topbar status
+    global timeElapsed
+    global gameOver
+    timeElapsed += (snakeRefSpd/1000)
+    if gameOver or len(nFoodPos) == 0: 
+        gameOver = True
+        title.setpos(0,0)
+        if len(nFoodPos) == 0:
+            title.color('green')
+            title.write("WINNER !!!"\
+                , False, align='center', font=('arial', 25, 'bold'))
+        else:
+            title.color('red')
+            title.write("GAME OVER !!!"\
+                , False, align='center', font=('arial', 25, 'bold'))
+    else:
+        disp.title(('Snake | Contacted: ' + str(monTailHit) + ' , Time Elapsed: ' + str(int(timeElapsed)) + 's'))
 
-## CREATE ENTITY
+## CREATE STATIC ENTITY
+def spawnTitleScr():
+    title.setpos(-220, 190)
+    title.write("Welcome to Vincent's version of Snake ...."\
+        , False, align='left', font=('arial', 12, 'bold'))
+    title.setpos(-220,160)
+    title.write("You are going to use the 4 arrow keys to move the snake"\
+        , False, align='left', font=('arial', 12, 'bold'))
+    title.setpos(-220,140)
+    title.write("around the screen, trying to consume all the food items"\
+        , False, align='left', font=('arial', 12, 'bold'))
+    title.setpos(-220,120)
+    title.write("before the monster catches you ...."\
+        , False, align='left', font=('arial', 12, 'bold'))
+    title.setpos(-220,90)
+    title.write("Click anywhere on the screen to start the game, have fun !!"\
+        , False, align='left', font=('arial', 12, 'bold'))
+
+def spawnSnake():                   # Not neccessary, but added to make things consistent
+    snakeHead()
+    snake.st()
+
+def spawnMonster():
+    monster.st()
+    while True:
+        posX = int(randrange(-12,12,1)*blockDist)
+        posY = int(randrange(-12,4,1)*blockDist) # Max spawn in Y dimension is 4, so it doesn't cover the title
+        dX = abs(posX - 0)
+        dY = abs(posY - 0)
+        if dX >= 5*blockDist or dY >= 5*blockDist:
+            break
+    monster.goto(posX, posY)
+
 def spawnFood():
     for i in range(9):
         posX = int(randrange(-12,12,1)*blockDist)
@@ -190,8 +229,15 @@ def spawnFood():
         nFood.goto(posX, posY-10) # Centers the number printed on the stamp
         nFood.write(i+1, True, align="center", font=("Arial", 12, "bold"))
 
-## DYNAMIC ENTITIES
-# Refresh Snake Entity
+## ENTITY FUNCTIONS
+# Snake (Entity Function)
+def snakeHead():                    # Used to switch between head and tail stamps
+    snake.color('black', 'yellow')
+def snakeTail():
+    snake.color('yellow', 'black')
+
+## DYNAMIC ENTITY REFRESH
+# Snake (Refresh)
 def refSnake():
     global snakeTailCount
     global snakeLen
@@ -199,7 +245,7 @@ def refSnake():
     global snakeTailPos
     global snakeRefSpd
     
-    if snakePaused == 0: # Move these to functions
+    if snakePaused == 0 and gameOver == False: # Move these to functions
         attemptMove()
 
         if outOfBound == 0:
@@ -219,29 +265,30 @@ def refSnake():
             if snakeTailCount == snakeLen:
                 snakeRefSpd = 250
                 snake.clearstamps(1)
-                del snakeTailPos[1]
-                # Insert Win Condition Check Here
+                del snakeTailPos[0]
             else:
                 snakeRefSpd = 500 # Snake is slowed when tail not fully extended
                 snakeTailCount += 1
+    statusCheck()
     disp.ontimer(refSnake, snakeRefSpd)
 
-# Refresh Monster Entity
+# Monster (Refresh)
 def refMon():
+    global gameOver
     global monRefSpd
     global monTailHit
     # Measure future distance to snake with math in all four axes, go to place closest to snake
     dX = getRoundPos(monster, 'x') - getRoundPos(snake, 'x')
     dY = getRoundPos(monster, 'y') - getRoundPos(snake, 'y')
 
-    if abs(dX) >= abs(dY): # if dX > dY, move X, otherwise move Y
+    if abs(dX) >= abs(dY) and gameOver == False: # if dX > dY, move X, otherwise move Y
         x = getRoundPos(monster, 'x')
         if dX > 0: # if monster is to right of snake, move left, otherwise move right
             monster.setx(x - blockDist)
         elif dX < 0:
             monster.setx(x + blockDist)
 
-    elif abs(dY) >= abs(dX):
+    elif abs(dY) >= abs(dX) and gameOver == False:
         y = getRoundPos(monster, 'y')
         if dY > 0: # if monster is above snake, move down, otherwise move up
             monster.sety(y - blockDist)
@@ -250,13 +297,11 @@ def refMon():
 
     if colCheck(getRoundPos(monster, 'xy'), snakeTailPos) != None: # if there is collision
         monTailHit += 1
-        print('Tail Hit:', monTailHit)
     if colCheck(getRoundPos(monster, 'xy'), [getRoundPos(snake, 'xy')]) != None: # if there is collision
         gameOver = True
-        print('Game Over')
     disp.ontimer(refMon, monRefSpd)
 
-## LISTEN FOR EVENTS
+## EVENT TRIGGERS
 # Movement Keybinds
 disp.listen()
 disp.onkey(turnUp, 'Up')
@@ -265,13 +310,20 @@ disp.onkey(turnLeft, 'Left')
 disp.onkey(turnRight, 'Right')
 disp.onkey(pause, 'space')
 
-# On Click Actions
-def clickStart():
-    pass
-
-if __name__ == "__main__":
-    disp.update()
+# Start Game (On Click)
+def clickStart(a, b):
+    title.clear()
+    disp.onscreenclick(None)
     spawnFood()
     refSnake()
     refMon()
+    while True:
+        disp.update()
+
+if __name__ == "__main__":
+    spawnTitleScr()
+    spawnSnake()
+    spawnMonster()
+    disp.update()
+    disp.onscreenclick(clickStart)
     disp.mainloop()
