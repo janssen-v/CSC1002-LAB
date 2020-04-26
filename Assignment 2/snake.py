@@ -212,7 +212,7 @@ def spawnMonster():
         posY = int(randrange(-12,4,1)*blockDist) # Max spawn in Y dimension is 4, so it doesn't cover the title
         dX = abs(posX - 0)
         dY = abs(posY - 0)
-        if dX >= 6*blockDist or dY >= 6*blockDist:
+        if dX >= 8*blockDist and dY >= 8*blockDist:
             break
     monster.goto(posX, posY)
 
