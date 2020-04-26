@@ -69,17 +69,16 @@ nFood.speed(0)             # It looks better when speed is 10, maybe next time
 
 ## GLOBAL OBJECT ATTRIBUTES
 # Snake (Object)
-snakePaused = 0            # Flag for snake state. (Pause = 1, Move = 0)
-outOfBound = 0             # Flag for boundary. (Inside = 0, Outside = 1)
+snakePaused = False        # Flag for snake state. (Pause = 1, Move = 0)
+outOfBound = False         # Flag for boundary. (Inside = False, Outside = True)
 snakeRefSpd = 250          # Refresh Speed of Snake (move speed)
 snakeLen = 6
 snakeTailCount = 0
 snakeHeadPos = getRoundPos(snake, 'xy')
 snakeTailPos = []          # list of all current positions of snake tail, used for collision detection
-
+snakeTailExt = False       # Flag for snake tail extension (Fully extended = True)
 # Monster (Object)
 monTailHit = 0             # Times that monster collides with snake tail
-monRefSpd = randrange(250, 500, 50)
 
 # Food (Object)
 nFoodPos = []              # List of all food positions
@@ -120,41 +119,41 @@ def attemptMove():
     if snake.heading() == up:
         nextY = curY + blockDist  # Used this instead of snake.forward because more reliable, it was often confused because position was returned in floats
         if nextY in boundary:     # although since then position is returned rounded with getRoundPos, this movement method is kept for redundancy to ensure
-            outOfBound = 0        # that the game will function reliably under all conditions.
+            outOfBound = False        # that the game will function reliably under all conditions.
             snake.sety(nextY)
         else:
-            outOfBound = 1
+            outOfBound = True
 
     if snake.heading() == down:
         nextY = curY - blockDist
         if nextY in boundary:
             snake.sety(nextY)
         else:
-            outOfBound = 1
+            outOfBound = True
 
     if snake.heading() == left:
         nextX = curX - blockDist
         if nextX in boundary:
-            outOfBound = 0
+            outOfBound = False
             snake.setx(nextX)
         else:
-            outOfBound = 1
+            outOfBound = True
 
     if snake.heading() == right:
         nextX = curX + blockDist
         if nextX in boundary:
-            outOfBound = 0
+            outOfBound = False
             snake.setx(nextX)
         else:
-            outOfBound = 1
+            outOfBound = True
 
 # Snake Pause
 def pause():                        # Toggle Snake Pause Flag
     global snakePaused
-    if snakePaused != 0:
-        snakePaused = 0
+    if snakePaused != False:
+        snakePaused = False
     else:
-        snakePaused = 1
+        snakePaused = True
 
 # GAME CHECKS
 def colCheck(pos, hazard):          # The hazard is a tuple of coordinates inside a list in the first and second index
@@ -168,8 +167,9 @@ def colCheck(pos, hazard):          # The hazard is a tuple of coordinates insid
 def statusCheck():                  # checks victory condition and updates topbar status
     global timeElapsed
     global gameOver
+    global snakeTailExt
     timeElapsed += (snakeRefSpd/1000)
-    if gameOver or len(nFoodPos) == 0: 
+    if gameOver or (len(nFoodPos) == 0 and snakeTailExt): 
         gameOver = True
         title.setpos(0,0)
         if len(nFoodPos) == 0:
@@ -202,7 +202,7 @@ def spawnTitleScr():
         , False, align='left', font=('arial', 12, 'bold'))
 
 def spawnSnake():                   # Not neccessary, but added to make things consistent
-    snakeHead()
+    stSnakeH()
     snake.st()
 
 def spawnMonster():
@@ -212,7 +212,7 @@ def spawnMonster():
         posY = int(randrange(-12,4,1)*blockDist) # Max spawn in Y dimension is 4, so it doesn't cover the title
         dX = abs(posX - 0)
         dY = abs(posY - 0)
-        if dX >= 5*blockDist or dY >= 5*blockDist:
+        if dX >= 6*blockDist or dY >= 6*blockDist:
             break
     monster.goto(posX, posY)
 
@@ -230,25 +230,20 @@ def spawnFood():
         nFood.write(i+1, True, align="center", font=("Arial", 12, "bold"))
 
 ## ENTITY FUNCTIONS
-# Snake (Entity Function)
-def snakeHead():                    # Used to switch between head and tail stamps
+# Snake (Entity Functions)
+def stSnakeH():                    # Used to switch between head and tail stamps
     snake.color('black', 'yellow')
-def snakeTail():
+def stSnakeT():
     snake.color('yellow', 'black')
 
-## DYNAMIC ENTITY REFRESH
-# Snake (Refresh)
-def refSnake():
-    global snakeTailCount
+def drawTail():
     global snakeLen
-    global snakeHeadPos # Because the head needs to start at someplace, since tailpos requires it in line 149
+    global snakeTailCount
     global snakeTailPos
+    global snakeHeadPos # Because the head needs to start at someplace, since tailpos requires it in line 149
     global snakeRefSpd
-    
-    if snakePaused == 0 and gameOver == False: # Move these to functions
-        attemptMove()
-
-        if outOfBound == 0:
+    global snakeTailExt
+    if not outOfBound:
             snakeTailPos.append(snakeHeadPos) #Append (prev)snake head pos as snaketail pos
             snakeHeadPos = (getRoundPos(snake, 'x'), getRoundPos(snake, 'y')) #Get current position and mark as (new) snake head pos
             collisionHazard = colCheck(snakeHeadPos, nFoodPos)
@@ -258,25 +253,35 @@ def refSnake():
                 nFood.clearstamp(collisionHazard[0][3])
                 del nFoodPos[collisionHazard[1]]  # Deletes food from the list
 
-            snakeTail() # Switch to draw snake tail
+            stSnakeT() # Switch to draw snake tail
             snake.stamp()
-            snakeHead() # Switch to draw snake head
+            stSnakeH() # Switch to draw snake head
 
             if snakeTailCount == snakeLen:
+                snakeTailExt = True
                 snakeRefSpd = 250
                 snake.clearstamps(1)
                 del snakeTailPos[0]
             else:
-                snakeRefSpd = 500 # Snake is slowed when tail not fully extended
+                snakeRefSpd = 400 # Snake is slowed when tail not fully extended
                 snakeTailCount += 1
+
+## DYNAMIC ENTITY REFRESH
+# Snake (Refresh)
+def refSnake():
+    global snakeRefSpd
+    if not snakePaused and gameOver == False: # Checks if paused or if game is over
+        attemptMove()
+        drawTail()  # draw snake tail
+    disp.update()   # design specification asked for manual display update
     statusCheck()
     disp.ontimer(refSnake, snakeRefSpd)
 
 # Monster (Refresh)
 def refMon():
     global gameOver
-    global monRefSpd
     global monTailHit
+    monRefSpd = randrange(250, 500, 50) # Generate random refresh speed (Have tested, it is possible to win with this setting)
     # Measure future distance to snake with math in all four axes, go to place closest to snake
     dX = getRoundPos(monster, 'x') - getRoundPos(snake, 'x')
     dY = getRoundPos(monster, 'y') - getRoundPos(snake, 'y')
@@ -299,6 +304,7 @@ def refMon():
         monTailHit += 1
     if colCheck(getRoundPos(monster, 'xy'), [getRoundPos(snake, 'xy')]) != None: # if there is collision
         gameOver = True
+    disp.update() # design specification asked for manual display update
     disp.ontimer(refMon, monRefSpd)
 
 ## EVENT TRIGGERS
@@ -317,8 +323,6 @@ def clickStart(a, b):
     spawnFood()
     refSnake()
     refMon()
-    while True:
-        disp.update()
 
 if __name__ == "__main__":
     spawnTitleScr()
